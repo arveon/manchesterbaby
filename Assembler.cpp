@@ -3,7 +3,6 @@
 using namespace std;
 Assembler::Assembler()
 {
-	cout << "TESTALEX" << endl;
 	curFile="";
 	lines = new vector<string>;
 	mc = new vector<string>;
@@ -206,7 +205,7 @@ int Assembler::isCharPresent(string line, char toFind)
 
 void Assembler::setInstructionSet()
 {
-	instructionSet = new instruction[10];
+	instructionSet = new instruction[INSTRUCTION_NUM];
 	string name, bitValue, supportsImmediateAddressing;
 	ifstream instructionFile;
  	instructionFile.open ("instructions.txt");
@@ -230,7 +229,6 @@ void Assembler::setInstructionSet()
 
 void Assembler::linesIntoMC()
 {
-	cout << "alexsjei is gay" << endl;
 	bool emptyLine = false;
 	for(int i=0; i<lines->size(); i++)
 	{
@@ -238,12 +236,6 @@ void Assembler::linesIntoMC()
 		{
 			mc->push_back("00000000000000000000000000000000");
 			emptyLine = true;
-		}
-		else
-		{
-		if(!emptyLine)
-		{
-			mc->push_back("00000000000000000000000000000000");
 		}
 		else
 		{
@@ -258,6 +250,7 @@ void Assembler::linesIntoMC()
 				}
 			}
 			if(!found)
+			{
 				throw CommandNotRecognisedException(curFile, lines->at(i), i);
 			}
 			//put the operands before each command
@@ -289,7 +282,11 @@ void Assembler::linesIntoMC()
 		}
 		mc->push_back(binaryValue);
 	}
-	
+
+	if(!mc->at(0).find("00000000000000000000000000000000") != string::npos)
+	{
+		mc->insert(mc->begin() + 0, "00000000000000000000000000000000");
+	}
 }
 
 string Assembler::decToBin(int dec, int size) 

@@ -12,6 +12,8 @@
 class Assembler
 {
 	private:
+		const int INSTRUCTION_NUM = 10;
+
 		struct instruction 
 		{
 			string key;
@@ -19,8 +21,6 @@ class Assembler
 			bool immediateAddressing;
 			bool supportsImmediateAddressing;
 		};
-
-		instruction* instructionSet;
 
 		struct Variable
 		{
@@ -33,6 +33,7 @@ class Assembler
 		vector<string>* lines;
 		vector<string>* mc;
 		vector<Variable*>* vars;
+		instruction* instructionSet;
 		
 		int start;
 		int end;
