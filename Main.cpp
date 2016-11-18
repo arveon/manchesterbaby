@@ -45,6 +45,11 @@ int main()
 	{
 		cout << ce5.message() << endl;
 	}
+
+	catch(StopCommandNotFoundException ce6)
+	{
+		cout << ce6.message() << endl;
+	}
 	
 	delete assembler;
 	return 0;

@@ -249,6 +249,7 @@ void Assembler::setInstructionSet()
 void Assembler::linesIntoMC()
 {
 	bool emptyLine = false;
+	bool stopConfirmed = false;
 	for(int i=0; i<lines->size(); i++)
 	{
 		if(lines->at(i).find("VAR 0") != string::npos)
@@ -275,7 +276,8 @@ void Assembler::linesIntoMC()
 			//put the operands before each command
 			for(int j=0; j<vars->size(); j++)
 			{
-				if(lines->at(i).find(vars->at(j)->name) != string::npos){
+				if(lines->at(i).find(vars->at(j)->name) != string::npos)
+				{
 					int decimalValue = vars->at(j)->address; 
 					string binaryValue = decToBin(decimalValue, 13);
 					mc->at(i) = binaryValue + mc->at(i); 
@@ -339,6 +341,15 @@ void Assembler::linesIntoMC()
 
 			}
 		}
+		if(lines->at(i).find("STP") != string::npos)
+		{
+			stopConfirmed = true;
+		}
+	}
+
+	if(!stopConfirmed)
+	{
+		throw StopCommandNotFoundException(curFile);
 	}
 	
 	// add binary values at the end of the output

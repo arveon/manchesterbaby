@@ -168,9 +168,8 @@ class StopCommandNotFoundException : public exception
 	private:
 		string path;
 	public:
-	CommandNotRecognisedException(string filename)
+	StopCommandNotFoundException(string filename)
 	{
-		this->line = line;
 		this->path = filename;
 	}
 	string message()
