@@ -130,7 +130,7 @@ class StartOrEndNotFoundException : public exception
 		string message()
 		{
 			stringstream message;
-			message <<"\033[1m" << path << ":" << ": \033[1;31m error: \033[0m - \033[1m'START'\033[0m or \033[1m'END'\033[0m tokens not found!"; 
+			message <<"\033[1m" << path <<  ": \033[1;34m warning: \033[0m - \033[1m'START'\033[0m or \033[1m'END'\033[0m tokens not found!"; 
 			return message.str();
 		}
 		
@@ -143,20 +143,18 @@ class StartOrEndNotFoundException : public exception
 class CommandNotRecognisedException : public exception
 {
 	private:
-		int line_num;
 		string line;
 		string path;
 	public:
-	CommandNotRecognisedException(string filename, string line, int line_num)
+	CommandNotRecognisedException(string filename, string line)
 	{
-		this->line_num = line_num;
 		this->line = line;
 		this->path = filename;
 	}
 	string message()
 	{
 		stringstream stream;
-		stream << "\033[1m" << path << ":" << line_num << ": \033[1;31m error: \033[0m - command not recognised \n\033[1m\t'" << line << "'\033[0m";
+		stream << "\033[1m" << path << ": \033[1;31m error: \033[0m - command not recognised \n\033[1m\t'" << line << "'\033[0m";
 		return stream.str();
 	}
 	virtual const char* what() const throw()

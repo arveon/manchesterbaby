@@ -55,6 +55,7 @@ void Assembler::setFile(string filepath)
 //strips the code of comments and parses variable names into addresses
 void Assembler::readLines()
 {
+	cout << "\033[0;37mReading assembler lines...\033[0m" << endl;
 	if(curFile=="")//will throw a file not set exception if file path is null
 		throw FileNotSetException();
 		
@@ -103,10 +104,12 @@ void Assembler::readLines()
 		file_line_num++;
 	} 
 	file.close();
+	cout << "\033[1;32mAssembler lines read successfully!\033[0m" << endl;
 }
 
 void Assembler::parseVariables()
 {
+	cout << "\033[0;37mParsing variable names, values and addresses...\033[0m" << endl;
 	int counter = 0;
 	for(int i = 0; i < lines->size(); i++)
 	{
@@ -144,10 +147,12 @@ void Assembler::parseVariables()
 		}
 		counter++;
 	}
+	cout << "\033[1;32mVariable names, addresses and values successfully passed!\033[0m" << endl;
 }
 
 void Assembler::removeEndStartTokens()
 {
+	cout << "\033[0;37mParsing start and end tokens...\033[0m" << endl;
 	bool startfound = false;
 	bool endfound = false;
 	int counter = 0;
@@ -171,8 +176,18 @@ void Assembler::removeEndStartTokens()
 		counter++;
 	}
 	
-	if(!startfound || !endfound)
-		throw StartOrEndNotFoundException(curFile);
+	try
+	{
+		if(!startfound || !endfound)
+			throw StartOrEndNotFoundException(curFile);
+		else
+			cout << "\033[1;32mstart and end tokens parsed successfully!\033[0m" << endl; 
+	}
+	catch(StartOrEndNotFoundException ex1)
+	{
+		cout << ex1.message() << endl;
+		cout << "\033[1;34mFailed to parse start and end tokens!\033[0m" << endl;
+	}
 }
 
 vector<string> Assembler::getLines()
@@ -253,7 +268,7 @@ void Assembler::linesIntoMC()
 			}
 			if(!found)
 			{
-				throw CommandNotRecognisedException(curFile, lines->at(i), i);
+				throw CommandNotRecognisedException(curFile, lines->at(i));
 			}
 			//put the operands before each command
 			for(int j=0; j<vars->size(); j++)
