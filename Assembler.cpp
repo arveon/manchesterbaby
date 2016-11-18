@@ -285,7 +285,7 @@ void Assembler::linesIntoMC()
 		mc->push_back(binaryValue);
 	}
 
-	if(!mc->at(0).find("00000000000000000000000000000000") != string::npos)
+	if(!(mc->at(0).find("00000000000000000000000000000000") != string::npos))
 	{
 		mc->insert(mc->begin() + 0, "00000000000000000000000000000000");
 	}
