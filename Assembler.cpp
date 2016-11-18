@@ -230,6 +230,7 @@ void Assembler::setInstructionSet()
 
 void Assembler::linesIntoMC()
 {
+	cout << "alexsjei is gay" << endl;
 	bool emptyLine = false;
 	for(int i=0; i<lines->size(); i++)
 	{
