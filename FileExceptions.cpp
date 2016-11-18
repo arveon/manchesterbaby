@@ -163,3 +163,26 @@ class CommandNotRecognisedException : public exception
 	}
 	
 };
+class StopCommandNotFoundException : public exception
+{
+	private:
+		string path;
+	public:
+	CommandNotRecognisedException(string filename)
+	{
+		this->line = line;
+		this->path = filename;
+	}
+	string message()
+	{
+		stringstream stream;
+		stream << "\033[1m" << path << ": \033[1;31m error: \033[0m - STP command missing from the file'\033[0m";
+		return stream.str();
+	}
+	virtual const char* what() const throw()
+	{
+		return "STP command missing from the file.";
+	}
+	
+};
+

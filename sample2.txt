@@ -1,0 +1,11 @@
+;The program will divide 20 by 4 and store result in the memory
+          VAR 0; take the first line
+          LDN 20; move 20 to accumulator
+          DIV 4; divide accumulator by 4
+          STO Result; store accumulator in Result memory address
+;
+          LDN Result;
+          STO Result;
+          STP;stop execution
+;declare a result variable
+Result:    VAR 0;
