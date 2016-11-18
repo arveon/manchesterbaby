@@ -3,6 +3,7 @@
 using namespace std;
 Assembler::Assembler()
 {
+	cout << "TESTALEX" << endl;
 	curFile="";
 	lines = new vector<string>;
 	mc = new vector<string>;
