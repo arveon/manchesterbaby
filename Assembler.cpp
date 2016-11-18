@@ -206,16 +206,15 @@ int Assembler::isCharPresent(string line, char toFind)
 void Assembler::setInstructionSet()
 {
 	instructionSet = new instruction[10];
-	string name, bitValue;
+	string name, bitValue, supportsImmediateAddressing;
 	ifstream instructionFile;
  	instructionFile.open ("instructions.txt");
- 	string a, b, c;
  	int i = 0;
 	while (instructionFile >> name >> bitValue >> supportsImmediateAddressing)
 	{
 	    instructionSet[i].key = name;
 	    instructionSet[i].value = bitValue;
-	    if(supportsImmediateAddressing == 1)
+	    if(supportsImmediateAddressing == "1")
 	    {
 	    	instructionSet[i].supportsImmediateAddressing = true;
 	    }
