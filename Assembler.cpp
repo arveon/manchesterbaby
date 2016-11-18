@@ -222,6 +222,7 @@ int Assembler::isCharPresent(string line, char toFind)
 
 void Assembler::setInstructionSet()
 {
+	cout << "\033[0;37mLoading possible command properties...\033[0m" << endl;
 	instructionSet = new instruction[INSTRUCTION_NUM];
 	string name, bitValue, supportsImmediateAddressing;
 	ifstream instructionFile;
@@ -242,6 +243,7 @@ void Assembler::setInstructionSet()
 	    i++;
 	}
  	instructionFile.close();
+ 	cout << "\033[1;32mCommand properties successfully loaded!\033[0m" << endl; 
 }
 
 void Assembler::linesIntoMC()
