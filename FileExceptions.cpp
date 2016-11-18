@@ -67,22 +67,20 @@ class InvalidVariableDeclarationException : public exception
 {
 	private:
 		string path;
-		int line_num;
 		string line;
 		string var;
 	public:
-		InvalidVariableDeclarationException(string filepath, string line, int line_num, string varname)
+		InvalidVariableDeclarationException(string filepath, string line, string varname)
 		{
 			path = filepath;
 			this->line = line;
-			this->line_num = line_num;
 			var = varname;
 		}
 		
 		string message()
 		{
 			stringstream message;
-			message << "\033[1m" << path << ":" << line_num << ": \033[1;31m error: \033[0m - illegal variable \033[1m\'"<< var << "\'\033[0m value format \n\033[1m\t'" << line << "'\033[0m"; 
+			message << "\033[1m" << path << ": \033[1;31m error: \033[0m - illegal variable \033[1m\'"<< var << "\'\033[0m value format \n\033[1m\t'" << line << "'\033[0m"; 
 			return message.str();
 		}
 		
@@ -96,22 +94,20 @@ class VariableOutOfRangeException : public exception
 {
 	private:
 		string path;
-		int line_num;
 		string line;
 		string name;
 	public:
-		VariableOutOfRangeException(string filepath, string line, int line_num, string name)
+		VariableOutOfRangeException(string filepath, string line, string name)
 		{
 			path = filepath;
 			this->line = line;
-			this->line_num = line_num;
 			this->name = name;
 		}
 		
 		string message()
 		{
 			stringstream message;
-			message <<"\033[1m" << path << ":" << ": \033[1;31m error: \033[0m - variable \033[1m'" << name << "'\033[0m value out of range \n\033[1m\t'" << line << "'\033[0m"; 
+			message <<"\033[1m" << path << ": \033[1;31m error: \033[0m - variable \033[1m'" << name << "'\033[0m value out of range \n\033[1m\t'" << line << "'\033[0m"; 
 			return message.str();
 		}
 		
