@@ -257,7 +257,7 @@ void Assembler::linesIntoMC()
 		else
 		{
 			bool found = false;
-			for(int j=0; j<10; j++)
+			for(int j=0; j<INSTRUCTION_NUM; j++)
 			{
 				if(lines->at(i).find(instructionSet[j].key) != string::npos)
 				{
@@ -282,19 +282,55 @@ void Assembler::linesIntoMC()
 			//checking for immediately declared variables
 			try
 			{
+				bool negative = false;
 				string lineToCheck = lines->at(i);
 				istringstream iss(lineToCheck);
 				vector<string> tokens;
 				copy(istream_iterator<string>(iss),
      			istream_iterator<string>(),
      			back_inserter(tokens));
-				int variable = stoi(tokens.at(1));
-				string binaryValue = decToBin(variable, 13);
-				mc->at(i) = binaryValue + mc->at(i); 
+				int immediateVariable = stoi(tokens.at(1));
+				if(immediateVariable < 0)
+				{
+					negative = true;
+					immediateVariable = abs(immediateVariable);
+				}	
+				string binaryValue = decToBin(immediateVariable, 16);
+
+				// add first part of the immediate variable, before the opcode
+				string firstHalf;
+				for(int x=0; x<13; x++)
+				{
+					firstHalf+= binaryValue[x];
+				}
+				mc->at(i) = firstHalf + mc->at(i);
+
+				// add second part of the immediate variable, after the opcode
+				int afterOpcode = 12;
+				string secondHalf;
+				for(int x=0; x<3; x++)
+				{
+					secondHalf+=binaryValue[afterOpcode];
+					afterOpcode++;
+				}
+				int counter = 0;
+				for(int x=16; x<19; x++)
+				{
+					mc->at(i)[x] = secondHalf[counter]; 
+					counter++;
+				}
+
+				// add a 1 if the variable was negative
+				if(negative)
+				{
+					mc->at(i)[20] = '1'; 
+				}
+
+				// leave a 1 at the end to show that it's an immediate variable
+				mc->at(i)[31] = '1';
 			}
 			catch(invalid_argument& e)
 			{
-
 			}
 			catch(out_of_range& e1)
 			{
