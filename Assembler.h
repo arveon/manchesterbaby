@@ -16,6 +16,8 @@ class Assembler
 		{
 			string key;
 			string value;
+			bool immediateAddressing;
+			bool supportsImmediateAddressing;
 		};
 
 		instruction* instructionSet;

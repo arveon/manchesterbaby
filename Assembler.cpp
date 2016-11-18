@@ -7,7 +7,6 @@ Assembler::Assembler()
 	lines = new vector<string>;
 	mc = new vector<string>;
 	vars = new vector<Variable*>;
-	instructionSet = new instruction[8];
 	setInstructionSet();
 }
 
@@ -210,12 +209,20 @@ void Assembler::setInstructionSet()
 	string name, bitValue;
 	ifstream instructionFile;
  	instructionFile.open ("instructions.txt");
- 	string a, b;
+ 	string a, b, c;
  	int i = 0;
-	while (instructionFile >> name >> bitValue)
+	while (instructionFile >> name >> bitValue >> supportsImmediateAddressing)
 	{
 	    instructionSet[i].key = name;
 	    instructionSet[i].value = bitValue;
+	    if(supportsImmediateAddressing == 1)
+	    {
+	    	instructionSet[i].supportsImmediateAddressing = true;
+	    }
+	    else
+	    {
+	    	instructionSet[i].supportsImmediateAddressing = false;
+	    }
 	    i++;
 	}
  	instructionFile.close();
@@ -223,9 +230,17 @@ void Assembler::setInstructionSet()
 
 void Assembler::linesIntoMC()
 {
+	bool emptyLine = false;
 	for(int i=0; i<lines->size(); i++)
 	{
 		if(lines->at(i).find("VAR 0") != string::npos)
+		{
+			mc->push_back("00000000000000000000000000000000");
+			emptyLine = true;
+		}
+		else
+		{
+		if(!emptyLine)
 		{
 			mc->push_back("00000000000000000000000000000000");
 		}
@@ -243,15 +258,16 @@ void Assembler::linesIntoMC()
 			}
 			if(!found)
 				throw CommandNotRecognisedException(curFile, lines->at(i), i);
-		}
-		//put the operands before each command
-		for(int j=0; j<vars->size(); j++)
-		{
-			if(lines->at(i).find(vars->at(j)->name) != string::npos){
-				int decimalValue = vars->at(j)->address; 
-				string binaryValue = decToBin(decimalValue, 13);
-				mc->at(i) = binaryValue + mc->at(i); 
-			}	
+			}
+			//put the operands before each command
+			for(int j=0; j<vars->size(); j++)
+			{
+				if(lines->at(i).find(vars->at(j)->name) != string::npos){
+					int decimalValue = vars->at(j)->address; 
+					string binaryValue = decToBin(decimalValue, 13);
+					mc->at(i) = binaryValue + mc->at(i); 
+				}	
+			}
 		}
 	}
 	
@@ -292,7 +308,7 @@ string Assembler::negateBin(string bin)
 	string temp;
 	string binCopy;
 	binCopy=bin;
-	for(int i=0; i<32; i++) 
+	for(int i=0; i<16; i++) 
 	{
 		if(bin[i]=='0') binCopy[i] = '1';
 		else binCopy[i] = '0';
