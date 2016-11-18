@@ -264,6 +264,27 @@ void Assembler::linesIntoMC()
 					mc->at(i) = binaryValue + mc->at(i); 
 				}	
 			}
+			//checking for immediately declared variables
+			try
+			{
+				string lineToCheck = lines->at(i);
+				istringstream iss(lineToCheck);
+				vector<string> tokens;
+				copy(istream_iterator<string>(iss),
+     			istream_iterator<string>(),
+     			back_inserter(tokens));
+				int variable = stoi(tokens.at(1));
+				string binaryValue = decToBin(variable, 13);
+				mc->at(i) = binaryValue + mc->at(i); 
+			}
+			catch(invalid_argument& e)
+			{
+
+			}
+			catch(out_of_range& e1)
+			{
+
+			}
 		}
 	}
 	

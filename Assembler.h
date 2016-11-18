@@ -4,8 +4,8 @@
 #include <string>
 #include <fstream>
 #include <vector>
-#include <bitset> 
-#include <algorithm>
+#include <sstream>
+#include <iterator>
 #include <fstream>
 #include "FileExceptions.cpp"
 
