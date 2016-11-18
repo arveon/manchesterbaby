@@ -12,6 +12,7 @@ Assembler::Assembler()
 
 Assembler::Assembler(string filepath)
 {
+	cout << "hello world" << endl;
 	curFile = filepath;
 	lines = new vector<string>;
 	mc = new vector<string>;
