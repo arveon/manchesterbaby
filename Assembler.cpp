@@ -129,11 +129,11 @@ void Assembler::parseVariables()
 			}
 			catch(invalid_argument& e)
 			{
-				throw InvalidVariableDeclarationException(curFile, temp, i, temp_v->name);
+				throw InvalidVariableDeclarationException(curFile, temp, temp_v->name);
 			}
 			catch(out_of_range& e1)
 			{
-				throw VariableOutOfRangeException(curFile, temp, i, temp_v->name);
+				throw VariableOutOfRangeException(curFile, temp, temp_v->name);
 			}
 			temp_v->address = counter;
 			vars->push_back(temp_v);
