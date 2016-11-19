@@ -332,7 +332,7 @@ void Assembler::linesIntoMC()
 					afterOpcode++;
 				}
 				int counter = 0;
-				for(int x=16; x<19; x++)
+				for(int x=17; x<20; x++)
 				{
 					mc->at(i)[x] = secondHalf[counter]; 
 					counter++;
@@ -354,7 +354,6 @@ void Assembler::linesIntoMC()
 			{
 				if(lines->at(i).find("STP")==string::npos)
 				{
-					cout << "alex pls" << endl;
 					throw VariableOutOfRangeException(curFile, lines->at(i), "that was immediately declared");
 				}
 			}
