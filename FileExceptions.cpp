@@ -185,4 +185,26 @@ class StopCommandNotFoundException : public exception
 	
 };
 
+class VarZeroNotFoundException : public exception
+{
+	private:
+		string path;
+	public:
+		VarZeroNotFoundException(string filepath)
+		{
+			path = filepath;
+		}
+		
+		string message()
+		{
+			stringstream message;
+			message <<"\033[1m" << path <<  ": \033[1;34m warning: \033[0m - \033[1m'VAR 0'\033[0m at the beginning not found!"; 
+			return message.str();
+		}
+		
+		virtual const char* what() const throw()
+		{
+			return "VAR 0 not found!";
+		}
+};
 

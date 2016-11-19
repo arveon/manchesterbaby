@@ -1,4 +1,5 @@
 ;will add 50 to 200, multiply result by 2 and store in Res
+        VAR 0; 
         LDN 200;//stores -200
         SUB 50;//adds -50 (-250)
         MUL Multiplier;//multiplies by 2 (-500)
