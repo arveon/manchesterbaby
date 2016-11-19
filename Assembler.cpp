@@ -242,7 +242,7 @@ void Assembler::setInstructionSet()
 	    else
 	    {
 	    	instructionSet[i].supportsImmediateAddressing = false;
-	    }
+	    }5
 	    i++;
 	}
  	instructionFile.close();
@@ -290,7 +290,6 @@ void Assembler::linesIntoMC()
 				}	
 			}
 
-
 			//check for immediately declared variables
 			int immediateVariable;
 			try
@@ -304,11 +303,9 @@ void Assembler::linesIntoMC()
      			back_inserter(tokens));
 				immediateVariable = stoi(tokens.at(1));
 
-				cout << immediateVariable << endl;
-
 				if(immediateVariable <= -65535 || immediateVariable >= 65535)
 				{
-					throw "asd";
+					throw "a";
 				}
 
 				if(immediateVariable < 0)
@@ -357,9 +354,9 @@ void Assembler::linesIntoMC()
 			{
 				
 			}
-			catch(const char* asd)
+			catch(const char* a)
 			{
-				throw VariableOutOfRangeException(curFile, lines->at(i), "immediate var");
+				throw VariableOutOfRangeException(curFile, lines->at(i), to_string(immediateVariable));
 			}
 		}
 
