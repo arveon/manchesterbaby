@@ -13,6 +13,10 @@ class Assembler
 {
 	private:
 		const int INSTRUCTION_NUM = 10;
+		const string INSTRUCTION_SOURCE ="instructions.txt";
+		const int STANDARD_VAR_SIZE = 2147483647;
+		const int IMMEDIATE_VAR_SIZE = 65535;
+		const string LINE_OF_ZEROES = "00000000000000000000000000000000";
 
 		struct instruction 
 		{

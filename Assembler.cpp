@@ -130,7 +130,7 @@ void Assembler::parseVariables()
 				getline(buffer, s_value, ':');
 				temp_v->value = stoi(s_value);
 
-				if(temp_v->value <= -65535 || temp_v->value >= 65535)
+				if(temp_v->value <= -(STANDARD_VAR_SIZE) || temp_v->value >= STANDARD_VAR_SIZE)
 					throw out_of_range("asd");
 			}
 			catch(invalid_argument& e)
@@ -227,22 +227,14 @@ void Assembler::setInstructionSet()
 {
 	cout << "\033[0;37mLoading possible command properties...\033[0m" << endl;
 	instructionSet = new instruction[INSTRUCTION_NUM];
-	string name, bitValue, supportsImmediateAddressing;
+	string name, bitValue;
 	ifstream instructionFile;
- 	instructionFile.open ("instructions.txt");
+ 	instructionFile.open (INSTRUCTION_SOURCE);
  	int i = 0;
-	while (instructionFile >> name >> bitValue >> supportsImmediateAddressing)
+	while (instructionFile >> name >> bitValue)
 	{
 	    instructionSet[i].key = name;
 	    instructionSet[i].value = bitValue;
-	    if(supportsImmediateAddressing == "1")
-	    {
-	    	instructionSet[i].supportsImmediateAddressing = true;
-	    }
-	    else
-	    {
-	    	instructionSet[i].supportsImmediateAddressing = false;
-	    }
 	    i++;
 	}
  	instructionFile.close();
@@ -258,7 +250,7 @@ void Assembler::linesIntoMC()
 		// add row of 0s where a VAR 0 was declared
 		if(lines->at(i).find("VAR 0") != string::npos)
 		{
-			mc->push_back("00000000000000000000000000000000");
+			mc->push_back(LINE_OF_ZEROES);
 			emptyLine = true;
 		}
 		else
@@ -303,7 +295,7 @@ void Assembler::linesIntoMC()
      			back_inserter(tokens));
 				immediateVariable = stoi(tokens.at(1));
 
-				if(immediateVariable <= -65535 || immediateVariable >= 65535)
+				if(immediateVariable <= -(IMMEDIATE_VAR_SIZE) || immediateVariable >= IMMEDIATE_VAR_SIZE)
 				{
 					throw "a";
 				}
@@ -350,6 +342,7 @@ void Assembler::linesIntoMC()
 			catch(invalid_argument& e)
 			{
 			}
+			// if the number is too big to be an integer
 			catch(out_of_range& e1)
 			{
 				if(lines->at(i).find("STP")==string::npos)
@@ -357,6 +350,7 @@ void Assembler::linesIntoMC()
 					throw VariableOutOfRangeException(curFile, lines->at(i), "that was immediately declared");
 				}
 			}
+			// if the number is bigger than 16 bits
 			catch(const char* a)
 			{
 				throw VariableOutOfRangeException(curFile, lines->at(i), to_string(immediateVariable));
@@ -380,7 +374,7 @@ void Assembler::linesIntoMC()
 	for(int j=0; j<vars->size(); j++)
 	{
 		bool negative = false;
-		int decimalValue = vars->at(j)->value; 
+		int decimalValue = vars->at(j)->value;
 		if(decimalValue < 0)
 		{
 			negative = true;
@@ -395,11 +389,9 @@ void Assembler::linesIntoMC()
 	}
 
 	// if there wasn't a VAR 0 at the beginning, manually add a row of 0s because it's necessary for the baby
-	if(!(mc->at(0).find("00000000000000000000000000000000") != string::npos))
+	if(!(mc->at(0).find(LINE_OF_ZEROES) != string::npos))
 	{
-		mc->insert(mc->begin() + 0, "00000000000000000000000000000000");
-		// warning: no VAR 0 declared at the beginning?
-		//cout << "\033[1m" + curFile + "\033[0m: \033[1;34m warning: \033[0m - \033[1m'VAR 0'\033[0m at the beginning not found!" << endl;
+		mc->insert(mc->begin() + 0, LINE_OF_ZEROES);
 		try
 		{
 			throw VarZeroNotFoundException(curFile);
