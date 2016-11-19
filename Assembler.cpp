@@ -242,7 +242,7 @@ void Assembler::setInstructionSet()
 	    else
 	    {
 	    	instructionSet[i].supportsImmediateAddressing = false;
-	    }5
+	    }
 	    i++;
 	}
  	instructionFile.close();
@@ -352,7 +352,11 @@ void Assembler::linesIntoMC()
 			}
 			catch(out_of_range& e1)
 			{
-				
+				if(lines->at(i).find("STP")==string::npos)
+				{
+					cout << "alex pls" << endl;
+					throw VariableOutOfRangeException(curFile, lines->at(i), "that was immediately declared");
+				}
 			}
 			catch(const char* a)
 			{

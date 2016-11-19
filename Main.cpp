@@ -6,7 +6,7 @@ int main()
 	
 	try
 	{
-		assembler->setFile("severalOps.txt");
+		assembler->setFile("sample.txt");
 		vector<string> asd = assembler->getLines();
 		for(int i = 0; i < asd.size(); i++)
 		{
