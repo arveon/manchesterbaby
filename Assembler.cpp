@@ -252,6 +252,7 @@ void Assembler::linesIntoMC()
 	bool stopConfirmed = false;
 	for(int i=0; i<lines->size(); i++)
 	{
+		// add row of 0s where a VAR 0 was declared
 		if(lines->at(i).find("VAR 0") != string::npos)
 		{
 			mc->push_back("00000000000000000000000000000000");
@@ -259,6 +260,7 @@ void Assembler::linesIntoMC()
 		}
 		else
 		{
+			// look for instruction on the line
 			bool found = false;
 			for(int j=0; j<INSTRUCTION_NUM; j++)
 			{
@@ -273,6 +275,7 @@ void Assembler::linesIntoMC()
 			{
 				throw CommandNotRecognisedException(curFile, lines->at(i));
 			}
+
 			//put the operands before each command
 			for(int j=0; j<vars->size(); j++)
 			{
@@ -283,7 +286,8 @@ void Assembler::linesIntoMC()
 					mc->at(i) = binaryValue + mc->at(i); 
 				}	
 			}
-			//checking for immediately declared variables
+
+			//check for immediately declared variables
 			try
 			{
 				bool negative = false;
@@ -338,15 +342,17 @@ void Assembler::linesIntoMC()
 			}
 			catch(out_of_range& e1)
 			{
-
 			}
 		}
+
+		// look for STP command
 		if(lines->at(i).find("STP") != string::npos)
 		{
 			stopConfirmed = true;
 		}
 	}
 
+	// if no STP keyword was found
 	if(!stopConfirmed)
 	{
 		throw StopCommandNotFoundException(curFile);
@@ -370,9 +376,11 @@ void Assembler::linesIntoMC()
 		mc->push_back(binaryValue);
 	}
 
+	// if there wasn't a VAR 0 at the beginning, manually add a row of 0s because it's necessary for the baby
 	if(!(mc->at(0).find("00000000000000000000000000000000") != string::npos))
 	{
 		mc->insert(mc->begin() + 0, "00000000000000000000000000000000");
+		// warning: no VAR 0 declared at the beginning?
 	}
 }
 
