@@ -304,8 +304,12 @@ void Assembler::linesIntoMC()
      			back_inserter(tokens));
 				immediateVariable = stoi(tokens.at(1));
 
+				cout << immediateVariable << endl;
+
 				if(immediateVariable <= -65535 || immediateVariable >= 65535)
-					throw out_of_range("asd");
+				{
+					throw "asd";
+				}
 
 				if(immediateVariable < 0)
 				{
@@ -351,8 +355,11 @@ void Assembler::linesIntoMC()
 			}
 			catch(out_of_range& e1)
 			{
-				string ssd = "immediate var";
-				throw VariableOutOfRangeException(curFile, lines->at(i), ssd);
+				
+			}
+			catch(const char* asd)
+			{
+				throw VariableOutOfRangeException(curFile, lines->at(i), "immediate var");
 			}
 		}
 
