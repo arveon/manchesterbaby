@@ -129,6 +129,9 @@ void Assembler::parseVariables()
 				string s_value;
 				getline(buffer, s_value, ':');
 				temp_v->value = stoi(s_value);
+
+				if(temp_v->value <= -65535 || temp_v->value >= 65535)
+					throw out_of_range("asd");
 			}
 			catch(invalid_argument& e)
 			{
@@ -287,7 +290,9 @@ void Assembler::linesIntoMC()
 				}	
 			}
 
+
 			//check for immediately declared variables
+			int immediateVariable;
 			try
 			{
 				bool negative = false;
@@ -297,7 +302,11 @@ void Assembler::linesIntoMC()
 				copy(istream_iterator<string>(iss),
      			istream_iterator<string>(),
      			back_inserter(tokens));
-				int immediateVariable = stoi(tokens.at(1));
+				immediateVariable = stoi(tokens.at(1));
+
+				if(immediateVariable <= -65535 || immediateVariable >= 65535)
+					throw out_of_range("asd");
+
 				if(immediateVariable < 0)
 				{
 					negative = true;
@@ -342,6 +351,8 @@ void Assembler::linesIntoMC()
 			}
 			catch(out_of_range& e1)
 			{
+				string ssd = "immediate var";
+				throw VariableOutOfRangeException(curFile, lines->at(i), ssd);
 			}
 		}
 
