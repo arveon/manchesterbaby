@@ -381,6 +381,7 @@ void Assembler::linesIntoMC()
 	{
 		mc->insert(mc->begin() + 0, "00000000000000000000000000000000");
 		// warning: no VAR 0 declared at the beginning?
+		cout << "\033[1m" + curFile + "\033[0m: \033[1;34m warning: \033[0m - \033[1m'VAR 0'\033[0m at the beginning not found!" << endl;
 	}
 }
 
