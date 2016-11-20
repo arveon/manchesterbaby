@@ -381,6 +381,7 @@ void Assembler::linesIntoMC()
 		catch(VarZeroNotFoundException ex1)
 		{
 			cout << ex1.message() << endl;
+			cout << "\033[1;34mAdded a VAR 0 automatically!\033[0m" << endl;
 		}
 	}
 
