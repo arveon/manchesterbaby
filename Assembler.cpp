@@ -242,19 +242,22 @@ void Assembler::setInstructionSet()
 // reads the first assembler output (lines and vars vectors) into a second method to create the machine code
 void Assembler::linesIntoMC()
 {
-	bool emptyLine = false; // tracks whether the necessary line of 0s at the beginning of the machine code has been createds
+	bool varZeroMissing = false; // tracks whether the necessary line of 0s at the beginning of the machine code has been created using a VAR 0
 	bool stopConfirmed = false; // tracks whether the STP keyword has been encountered
 
 	for(int i=0; i<lines->size(); i++) //beginning of main loop that goes through the inital assembler program output, the lines vector
 	{
-		// add row of 0s where a VAR 0 was declared
-		if(lines->at(i).find("VAR 0") != string::npos)
+		if(lines->at(i).find("VAR 0") != string::npos) // add row of 0s where the VAR 0 should be declared
 		{
-			mc->push_back(LINE_OF_ZEROES); // add the  to the vector
-			emptyLine = true;
+			mc->push_back(LINE_OF_ZEROES); // add the 0s to the vector
 		}
 		else
 		{
+			if(lines->at(0).find("VAR 0") == string::npos)
+			{
+				varZeroMissing = true;
+			}
+
 			// look for instruction on the current line
 			bool found = false; // keep track of whether an instruction has been found on the current line
 			for(int j=0; j<INSTRUCTION_NUM; j++) // loop through all the instructions available in the array
@@ -277,6 +280,10 @@ void Assembler::linesIntoMC()
 				if(lines->at(i).find(vars->at(j)->name) != string::npos) // if a variable name is found on the current name
 				{
 					int decimalValue = vars->at(j)->address; // store the variable address in an integer
+					if(varZeroMissing)
+					{
+						decimalValue++;
+					}
 					string binaryValue = decToBin(decimalValue, 13); // convert the integer to a binary value of 13 bits
 					mc->at(i) = binaryValue + mc->at(i); // place the binary operand at the beginning of the line, before the opcode
 				}	
@@ -292,20 +299,20 @@ void Assembler::linesIntoMC()
 				vector<string> tokens; // create a vector to store each element of the string
 				copy(istream_iterator<string>(split), istream_iterator<string>(), back_inserter(tokens)); // split the string and store in tokens vector
 				immediateVariable = stoi(tokens.at(1)); // store the possible integer that's in the second position of the string that's been split
-
+				
 				if(immediateVariable <= -(IMMEDIATE_VAR_SIZE) || immediateVariable >= IMMEDIATE_VAR_SIZE) // if the variable exceeds the immediate variable size
 				{
 					throw "a"; // throw an exception
 				}
-
+				
 				if(immediateVariable < 0) // if the variable is negative, keep track of it so that we can indicate this fact in the machine code later
 				{
 					negative = true;
 					immediateVariable = abs(immediateVariable); // make the variable positive so that we can convert it to binary first
 				}	
 				string binaryValue = decToBin(immediateVariable, 16); // convert the variable to a binary value of 16 bits
-
-				// add first part of the immediate variable, before the opcode
+				
+				// add the first part of the immediate variable, before the opcode
 				string firstHalf;
 				for(int x=0; x<13; x++) // take the first 13 bits of the binary variable and store them in a string
 				{
@@ -320,7 +327,7 @@ void Assembler::linesIntoMC()
 				{
 					secondHalf+=binaryValue[afterOpcode];
 					afterOpcode++;
-				}
+				} 
 				int counter = 0;
 				for(int x=17; x<20; x++) // add the string right after the opcode
 				{
@@ -353,14 +360,29 @@ void Assembler::linesIntoMC()
 			{
 				throw VariableOutOfRangeException(curFile, lines->at(i), to_string(immediateVariable)); // prints error message
 			}
-		}
 
-		// looks for STP command
-		if(lines->at(i).find("STP") != string::npos) // if the current line contains STP
-		{
-			stopConfirmed = true;
+			// looks for STP command
+			if(lines->at(i).find("STP") != string::npos) // if the current line contains STP
+			{
+				stopConfirmed = true;
+			}
 		}
 	} // end of main loop that was going through the lines vector
+
+	if(lines->at(0).find("VAR 0") == string::npos) // if there wasn't a VAR 0 at the beginning, manually add a row of 0s because it's necessary for the machester baby
+	{
+		mc->insert(mc->begin(), LINE_OF_ZEROES);
+
+		// add the 0s at the beginning of the machine code vector
+		try // print a warning message too since no VAR 0 was in the assembly program
+		{
+			throw VarZeroNotFoundException(curFile);
+		}
+		catch(VarZeroNotFoundException ex1)
+		{
+			cout << ex1.message() << endl;
+		}
+	}
 
 	// if no STP keyword was found
 	if(!stopConfirmed)
@@ -384,20 +406,6 @@ void Assembler::linesIntoMC()
 			binaryValue = negateBin(binaryValue); // negate the binary value
 		}
 		mc->push_back(binaryValue); // add the binary value to the end of the machine code
-	}
-
-	// if there wasn't a VAR 0 at the beginning, manually add a row of 0s because it's necessary for the machester baby
-	if(!(mc->at(0).find(LINE_OF_ZEROES) != string::npos))
-	{
-		mc->insert(mc->begin() + 0, LINE_OF_ZEROES); // add the 0s at the beginning of the machine code vector
-		try // print a warning message too
-		{
-			throw VarZeroNotFoundException(curFile);
-		}
-		catch(VarZeroNotFoundException ex1)
-		{
-			cout << ex1.message() << endl;
-		}
 	}
 }
 
