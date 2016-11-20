@@ -1,12 +1,14 @@
 #include "Assembler.h"
+
 using namespace std;
+
 int main()
 {
 	Assembler* assembler = new Assembler();
 	
 	try
 	{
-		assembler->setFile("sample.txt");
+		assembler->setFile("sample.txt"); // assembly program to read from
 		vector<string> asd = assembler->getLines();
 		for(int i = 0; i < asd.size(); i++)
 		{

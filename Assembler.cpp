@@ -1,8 +1,8 @@
 #include "Assembler.h"
 
-//sponsored by sad music .com  https://www.youtube.com/watch?v=57iOgKv2xRM
-
 using namespace std;
+
+// constructor
 Assembler::Assembler()
 {
 	curFile="";
@@ -12,18 +12,20 @@ Assembler::Assembler()
 	setInstructionSet();
 }
 
+// constructor with a filepath to read the assembly program from
 Assembler::Assembler(string filepath)
 {
 	curFile = filepath;
 	lines = new vector<string>;
 	mc = new vector<string>;
-	readLines();
+	readLines(); // go through each line of the assembly program, remove the comments and End/Start tokens as well as separate the variables into another vector
 	parseVariables();
 	removeEndStartTokens();
-	linesIntoMC();
-	saveMC();
+	linesIntoMC(); // create the machine code using the initial output from the assembler program
+	saveMC(); // once the machine code is correct, print it to the output file
 }
 
+// destructor
 Assembler::~Assembler()
 {
 	delete lines;
@@ -36,11 +38,6 @@ Assembler::~Assembler()
 	delete[] instructionSet;
 }
 
-string Assembler::getFile()
-{
-	return curFile;
-}
-
 void Assembler::setFile(string filepath)
 {
 	curFile = filepath;
@@ -51,8 +48,8 @@ void Assembler::setFile(string filepath)
 	saveMC();
 }
 
-//reads lines of assembler from the file and stores them in line vector
-//strips the code of comments and parses variable names into addresses
+// reads lines of assembler from the file and stores them in line vector
+// strips the code of comments and parses variable names into addresses
 void Assembler::readLines()
 {
 	cout << "\033[0;37mReading assembler lines...\033[0m" << endl;
@@ -68,14 +65,14 @@ void Assembler::readLines()
 	int file_line_num = 1;
 	while(getline(file,line))
 	{
-		//form a line of assembler code that will be put in vector
-		//need to stop reading line after ;
-		//need to skip all the spaces
+		// form a line of assembler code that will be put in vector
+		// need to stop reading line after ;
+		// need to skip all the spaces
 		stringstream newline;
 		bool linestarted = false;
 		for(int i = 0; i < line.length(); i++)
 		{
-			//if endline symbol reached, stop reading the line
+			// if endline symbol reached, stop reading the line
 			if(line[i]==';')
 				break;
 			
@@ -83,21 +80,21 @@ void Assembler::readLines()
 				throw LineNotTerminatedException(file_line_num, newline.str(), curFile);
 			
 			if(!linestarted && line[i]==' ')
-			{//if line hasn't started and character is space, skip it
+			{// if line hasn't started and character is space, skip it
 				continue;
 			}
 			else if(linestarted && line[i]==' ')
-			{//if there were symbols before this space, insert one space and stop saving spaces
+			{// if there were symbols before this space, insert one space and stop saving spaces
 				newline << line[i];
 				linestarted = false;
 			}
 			else
-			{//if not space, just store it in the stream and start saving spaces
+			{// if not space, just store it in the stream and start saving spaces
 				newline << line[i];
 				linestarted = true;
 			}	
 		}
-		//if there was something in the line, store it
+		// if there was something in the line, store it
 		if(newline.str().length()>0)
 			lines->push_back(newline.str());
 			
@@ -223,6 +220,7 @@ int Assembler::isCharPresent(string line, char toFind)
 	return -1;
 }
 
+// loads the instructions from the file and stores them in an array
 void Assembler::setInstructionSet()
 {
 	cout << "\033[0;37mLoading possible command properties...\033[0m" << endl;
@@ -241,103 +239,103 @@ void Assembler::setInstructionSet()
  	cout << "\033[1;32mCommand properties successfully loaded!\033[0m" << endl; 
 }
 
+// reads the first assembler output (lines and vars vectors) into a second method to create the machine code
 void Assembler::linesIntoMC()
 {
-	bool emptyLine = false;
-	bool stopConfirmed = false;
-	for(int i=0; i<lines->size(); i++)
+	bool emptyLine = false; // tracks whether the necessary line of 0s at the beginning of the machine code has been createds
+	bool stopConfirmed = false; // tracks whether the STP keyword has been encountered
+
+	for(int i=0; i<lines->size(); i++) //beginning of main loop that goes through the inital assembler program output, the lines vector
 	{
 		// add row of 0s where a VAR 0 was declared
 		if(lines->at(i).find("VAR 0") != string::npos)
 		{
-			mc->push_back(LINE_OF_ZEROES);
+			mc->push_back(LINE_OF_ZEROES); // add the  to the vector
 			emptyLine = true;
 		}
 		else
 		{
-			// look for instruction on the line
-			bool found = false;
-			for(int j=0; j<INSTRUCTION_NUM; j++)
+			// look for instruction on the current line
+			bool found = false; // keep track of whether an instruction has been found on the current line
+			for(int j=0; j<INSTRUCTION_NUM; j++) // loop through all the instructions available in the array
 			{
-				if(lines->at(i).find(instructionSet[j].key) != string::npos)
+				if(lines->at(i).find(instructionSet[j].key) != string::npos) // if an instruction is found on the current line
 				{
 					found = true;
-					mc->push_back(instructionSet[j].value);
+					mc->push_back(instructionSet[j].value); // add the binary instruction opcode to the machine code vector
 					break;
 				}
 			}
-			if(!found)
+			if(!found) // if none is found, output an error
 			{
-				throw CommandNotRecognisedException(curFile, lines->at(i));
+				throw CommandNotRecognisedException(curFile, lines->at(i)); 
 			}
 
 			//put the operands before each command
-			for(int j=0; j<vars->size(); j++)
+			for(int j=0; j<vars->size(); j++) // loop through each variable
 			{
-				if(lines->at(i).find(vars->at(j)->name) != string::npos)
+				if(lines->at(i).find(vars->at(j)->name) != string::npos) // if a variable name is found on the current name
 				{
-					int decimalValue = vars->at(j)->address; 
-					string binaryValue = decToBin(decimalValue, 13);
-					mc->at(i) = binaryValue + mc->at(i); 
+					int decimalValue = vars->at(j)->address; // store the variable address in an integer
+					string binaryValue = decToBin(decimalValue, 13); // convert the integer to a binary value of 13 bits
+					mc->at(i) = binaryValue + mc->at(i); // place the binary operand at the beginning of the line, before the opcode
 				}	
 			}
 
-			//check for immediately declared variables
-			int immediateVariable;
+			//check for immediately declared variables and store them in the machine code
+			int immediateVariable; // variable to store the variable in
 			try
 			{
-				bool negative = false;
-				string lineToCheck = lines->at(i);
-				istringstream iss(lineToCheck);
-				vector<string> tokens;
-				copy(istream_iterator<string>(iss),
-     			istream_iterator<string>(),
-     			back_inserter(tokens));
-				immediateVariable = stoi(tokens.at(1));
+				bool negative = false; // keeps track whether the variable is negative or not
+				string lineToCheck = lines->at(i); // string to store the vector string to test
+				istringstream split(lineToCheck); // create an istringstream object
+				vector<string> tokens; // create a vector to store each element of the string
+				copy(istream_iterator<string>(split), istream_iterator<string>(), back_inserter(tokens)); // split the string and store in tokens vector
+				immediateVariable = stoi(tokens.at(1)); // store the possible integer that's in the second position of the string that's been split
 
-				if(immediateVariable <= -(IMMEDIATE_VAR_SIZE) || immediateVariable >= IMMEDIATE_VAR_SIZE)
+				if(immediateVariable <= -(IMMEDIATE_VAR_SIZE) || immediateVariable >= IMMEDIATE_VAR_SIZE) // if the variable exceeds the immediate variable size
 				{
-					throw "a";
+					throw "a"; // throw an exception
 				}
 
-				if(immediateVariable < 0)
+				if(immediateVariable < 0) // if the variable is negative, keep track of it so that we can indicate this fact in the machine code later
 				{
 					negative = true;
-					immediateVariable = abs(immediateVariable);
+					immediateVariable = abs(immediateVariable); // make the variable positive so that we can convert it to binary first
 				}	
-				string binaryValue = decToBin(immediateVariable, 16);
+				string binaryValue = decToBin(immediateVariable, 16); // convert the variable to a binary value of 16 bits
 
 				// add first part of the immediate variable, before the opcode
 				string firstHalf;
-				for(int x=0; x<13; x++)
+				for(int x=0; x<13; x++) // take the first 13 bits of the binary variable and store them in a string
 				{
 					firstHalf+= binaryValue[x];
 				}
-				mc->at(i) = firstHalf + mc->at(i);
+				mc->at(i) = firstHalf + mc->at(i); // add the string before the opcode in the machine code line
 
 				// add second part of the immediate variable, after the opcode
 				int afterOpcode = 12;
 				string secondHalf;
-				for(int x=0; x<3; x++)
+				for(int x=0; x<3; x++) // take the last 3 bits of the binary variable and store them in a string
 				{
 					secondHalf+=binaryValue[afterOpcode];
 					afterOpcode++;
 				}
 				int counter = 0;
-				for(int x=17; x<20; x++)
+				for(int x=17; x<20; x++) // add the string right after the opcode
 				{
 					mc->at(i)[x] = secondHalf[counter]; 
 					counter++;
 				}
 
-				// add a 1 if the variable was negative
+				// add a 1 after the second part of the binary variable if the variable was negative
 				if(negative)
 				{
-					mc->at(i)[20] = '1'; 
+					mc->at(i)[20] = '1'; // replaces a 0 with a 1
 				}
 
 				// leave a 1 at the end to show that it's an immediate variable
-				mc->at(i)[31] = '1';
+				mc->at(i)[31] = '1'; // replaces a 0 with a 1
 			}
 			catch(invalid_argument& e)
 			{
@@ -345,54 +343,54 @@ void Assembler::linesIntoMC()
 			// if the number is too big to be an integer
 			catch(out_of_range& e1)
 			{
-				if(lines->at(i).find("STP")==string::npos)
+				if(lines->at(i).find("STP")==string::npos) // if there wasn't a STP on the line
 				{
-					throw VariableOutOfRangeException(curFile, lines->at(i), "that was immediately declared");
+					throw VariableOutOfRangeException(curFile, lines->at(i), "that was immediately declared"); // prints error message
 				}
 			}
 			// if the number is bigger than 16 bits
 			catch(const char* a)
 			{
-				throw VariableOutOfRangeException(curFile, lines->at(i), to_string(immediateVariable));
+				throw VariableOutOfRangeException(curFile, lines->at(i), to_string(immediateVariable)); // prints error message
 			}
 		}
 
-		// look for STP command
-		if(lines->at(i).find("STP") != string::npos)
+		// looks for STP command
+		if(lines->at(i).find("STP") != string::npos) // if the current line contains STP
 		{
 			stopConfirmed = true;
 		}
-	}
+	} // end of main loop that was going through the lines vector
 
 	// if no STP keyword was found
 	if(!stopConfirmed)
 	{
-		throw StopCommandNotFoundException(curFile);
+		throw StopCommandNotFoundException(curFile); // prints an error message as the STP command is necessary to end the program
 	}
 	
-	// add binary values at the end of the output
-	for(int j=0; j<vars->size(); j++)
+	// add the binary values of the variables at the end of the output
+	for(int j=0; j<vars->size(); j++) // loops through the vars vector
 	{
-		bool negative = false;
-		int decimalValue = vars->at(j)->value;
-		if(decimalValue < 0)
+		bool negative = false; // keeps track whether the variable is negative or not
+		int decimalValue = vars->at(j)->value; 
+		if(decimalValue < 0) // if the variable is negative
 		{
 			negative = true;
-			decimalValue = abs(decimalValue);
+			decimalValue = abs(decimalValue); // make the variable positive so that we can convert it to binary first
 		}		
-		string binaryValue = decToBin(decimalValue, 32);
-		if(negative)
+		string binaryValue = decToBin(decimalValue, 32); // convert the variable to a binary value of 32 bits
+		if(negative) // if it was negative
 		{
-			binaryValue = negateBin(binaryValue);
+			binaryValue = negateBin(binaryValue); // negate the binary value
 		}
-		mc->push_back(binaryValue);
+		mc->push_back(binaryValue); // add the binary value to the end of the machine code
 	}
 
-	// if there wasn't a VAR 0 at the beginning, manually add a row of 0s because it's necessary for the baby
+	// if there wasn't a VAR 0 at the beginning, manually add a row of 0s because it's necessary for the machester baby
 	if(!(mc->at(0).find(LINE_OF_ZEROES) != string::npos))
 	{
-		mc->insert(mc->begin() + 0, LINE_OF_ZEROES);
-		try
+		mc->insert(mc->begin() + 0, LINE_OF_ZEROES); // add the 0s at the beginning of the machine code vector
+		try // print a warning message too
 		{
 			throw VarZeroNotFoundException(curFile);
 		}
@@ -403,6 +401,7 @@ void Assembler::linesIntoMC()
 	}
 }
 
+// converts a decimal number to a binary value
 string Assembler::decToBin(int dec, int size) 
 {
 	string bin;
@@ -415,6 +414,7 @@ string Assembler::decToBin(int dec, int size)
 	return bin;
 }
 
+// converts a binary number to a negative binary value
 string Assembler::negateBin(string bin) 
 {
 	string temp;
@@ -432,6 +432,7 @@ string Assembler::negateBin(string bin)
 	return result;
 }
 
+// method used by the negateBin method to negate a binary value
 string Assembler::binAdd(string bin1, string bin2) 
 {
 	string result;
@@ -495,13 +496,14 @@ string Assembler::binAdd(string bin1, string bin2)
 	return result;
 }
 
+// saves the machine code to an output file
 void Assembler::saveMC()
 {
-	ofstream myfile;
- 	myfile.open ("output");
+	ofstream myfile; // create an ofstream object
+ 	myfile.open ("output"); // machine code is read to an output file
 	for(int i = 0; i < mc->size(); i++)
 	{
-		myfile << mc->at(i) << endl;
+		myfile << mc->at(i) << endl; // print the vector contents
 	}
- 	myfile.close();
+ 	myfile.close(); // close the file once it's finished
 }
