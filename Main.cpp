@@ -8,7 +8,11 @@ int main()
 	
 	try
 	{
-		assembler->setFile("sample.txt"); // assembly program to read from
+		string file;
+		cout << endl << "Please enter the name of the file that contains the assembly program:" << endl;
+		getline(cin, file);
+		cout << endl;
+		assembler->setFile(file); // assembly program to read from
 		vector<string> asd = assembler->getLines();
 		for(int i = 0; i < asd.size(); i++)
 		{
